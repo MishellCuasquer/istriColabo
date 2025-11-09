@@ -7,11 +7,10 @@ namespace CatalogoService.Services
 {
     public class StockMovimientoService : CrudService<StockMovimiento>, IStockMovimientoService
     {
+        private readonly CatalogoContext _ctx;
         public StockMovimientoService(CatalogoContext ctx) : base(ctx) { }
 
-        private readonly CatalogoContext _ctx;
-
-
+        
         public async Task<bool> Reservar(string isbn, int cantidad, Guid idempotencyKey, string? origen = null, string? correlationId = null, CancellationToken ct = default)
         {
             var libro = await _ctx.Libro.FirstOrDefaultAsync(l => l.isbn == isbn, ct);

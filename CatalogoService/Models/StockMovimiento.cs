@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CatalogoService.Models
 {
@@ -6,6 +7,7 @@ namespace CatalogoService.Models
     [Table("stock_movimiento", Schema = "catalogo")]
     public class StockMovimiento
     {
+        [Key]
         public Guid stock_movimiento_id { get; set; }          
         public string isbn { get; set; } = default!;         
         public int cantidad { get; set; }                    
