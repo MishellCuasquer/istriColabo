@@ -6,14 +6,14 @@ namespace CatalogoService.Models
     [Table("stock_movimiento", Schema = "catalogo")]
     public class StockMovimiento
     {
-        public Guid StockMovimientoId { get; set; }          
-        public string Isbn { get; set; } = default!;         
-        public int Cantidad { get; set; }                    
-        public TipoMovimiento Tipo { get; set; }             
-        public Guid IdempotencyKey { get; set; }             
-        public DateTime CreadoEn { get; set; } = DateTime.UtcNow;
+        public Guid stock_movimiento_id { get; set; }          
+        public string isbn { get; set; } = default!;         
+        public int cantidad { get; set; }                    
+        public TipoMovimiento tipo { get; set; }             
+        public Guid idempotency_Key { get; set; }             
+        public DateTime creado_en { get; set; } = DateTime.UtcNow;
 
-        public string? Origen { get; set; }                  
-        public string? CorrelationId { get; set; }           
+        public string? origen { get; set; }                  
+        public string? correlation_id { get; set; }           
     }
 }
