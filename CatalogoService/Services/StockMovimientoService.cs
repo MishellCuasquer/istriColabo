@@ -1,6 +1,7 @@
 ﻿using CatalogoService.Models;
 using CatalogoService.Persistence;
 using CatalogoService.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CatalogoService.Services
 {
@@ -13,30 +14,28 @@ namespace CatalogoService.Services
 
         public async Task<bool> Reservar(string isbn, int cantidad, Guid idempotencyKey, string? origen = null, string? correlationId = null, CancellationToken ct = default)
         {
-            var libro = await _libros.FirstOrDefaultAsync(l => l.ISBN == isbn, ct);
+            var libro = await _ctx.Libro.FirstOrDefaultAsync(l => l.isbn == isbn, ct);
             if (libro == null)
                 throw new Exception("El libro no existe en el catálogo.");
 
-            if (libro.CantidadDisponible < cantidad)
+            if (libro.stock_disponible < cantidad)
                 throw new Exception("No hay suficientes ejemplares disponibles.");
 
-            // Registrar movimiento
-            var movimiento = new MovimientoLibro
+            var movimiento = new StockMovimiento
             {
-                MovimientoId = Guid.NewGuid(),
-                ISBN = isbn,
-                Cantidad = cantidad,
-                Tipo = TipoMovimiento.RESERVA,
-                IdempotencyKey = idempotencyKey,
-                Origen = origen,
-                CorrelationId = correlationId
+                stock_movimiento_id = Guid.NewGuid(),
+                isbn = isbn,
+                cantidad = cantidad,
+                tipo = TipoMovimiento.RESERVA,
+                idempotency_Key = idempotencyKey,
+                origen = origen,
+                correlation_id = correlationId
             };
 
-            _movimientos.Add(movimiento);
+            _ctx.StockMovimiento.Add(movimiento);
 
-            // Actualizar disponibilidad
-            libro.CantidadDisponible -= cantidad;
-            _libros.Update(libro);
+            libro.stock_disponible -= cantidad;
+            _ctx.Libro.Update(libro);
 
             await _ctx.SaveChangesAsync(ct);
             return true;
@@ -44,32 +43,29 @@ namespace CatalogoService.Services
 
         public async Task<bool> Liberar(string isbn, int cantidad, Guid idempotencyKey, string? origen = null, string? correlationId = null, CancellationToken ct = default)
         {
-            var libro = await _libros.FirstOrDefaultAsync(l => l.ISBN == isbn, ct);
+            var libro = await _ctx.Libro.FirstOrDefaultAsync(l => l.isbn == isbn, ct);
             if (libro == null)
                 throw new Exception("El libro no existe en el catálogo.");
 
-            // Registrar movimiento
-            var movimiento = new MovimientoLibro
+            var movimiento = new StockMovimiento
             {
-                MovimientoId = Guid.NewGuid(),
-                ISBN = isbn,
-                Cantidad = cantidad,
-                Tipo = TipoMovimiento.LIBERACION,
-                IdempotencyKey = idempotencyKey,
-                Origen = origen,
-                CorrelationId = correlationId
+                stock_movimiento_id = Guid.NewGuid(),
+                isbn = isbn,
+                cantidad = cantidad,
+                tipo = TipoMovimiento.LIBERACION,
+                idempotency_Key = idempotencyKey,
+                origen = origen,
+                correlation_id = correlationId
             };
 
-            _movimientos.Add(movimiento);
+            _ctx.StockMovimiento.Add(movimiento);
 
-            // Actualizar disponibilidad
-            libro.CantidadDisponible += cantidad;
-            _libros.Update(libro);
+            libro.stock_disponible += cantidad;
+            _ctx.Libro.Update(libro);
 
             await _ctx.SaveChangesAsync(ct);
             return true;
         }
     }
 
-}
 }
